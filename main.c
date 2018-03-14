@@ -88,6 +88,8 @@ int main(void)
     // Initialize.
     log_init();
 	gpio_init();
+	lcd_reset();
+	lcd_init();
 
     // Start execution.
     NRF_LOG_INFO("LCD Test started.");
