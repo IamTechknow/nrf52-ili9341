@@ -140,10 +140,6 @@ void setAddrWindow(uint16_t x1, uint16_t y1, uint16_t x2, uint16_t y2) {
 	nrf_gpio_pin_write(LCD_CS, 1);
 }
 
-void flood(uint16_t color, uint32_t len) {
-
-}
-
 void lcd_reset(void) {
 	for(int i = 1; i < 5; i++)
 		nrf_gpio_pin_write(gpio_out[i], 1);
@@ -189,7 +185,7 @@ void lcd_init(void) {
 	writeRegister8inline(ILI9341_DISPLAYON, 0);
 	nrf_delay_ms(250);
 
-	setAddrWindow(0, 0, TFTWIDTH-1, TFTHEIGHT-1);
+	setAddrWindow(0, 0, TFTWIDTH - 1, TFTHEIGHT - 1);
 	nrf_gpio_pin_write(LCD_CS, 1);
 }
 
@@ -212,8 +208,41 @@ uint16_t getId(void) {
 	return (uint16_t) (readReg(ILI9341_ID4) & 0xffff); //use lower 16-bit mask
 }
 
-/**@brief Fill the screen with the specified color.
+/**@brief The primary function to draw a pixel on the LCD for Adafruit's GFX library.
  */
-void fillScreen(uint16_t color) {
+void ILI9341_drawPixel(int16_t x, int16_t y, uint16_t color) {
+	if(x < 0 || y < 0 || x >= TFTWIDTH || y >= TFTHEIGHT) 
+		return;
 
+	nrf_gpio_pin_write(LCD_CS, 0);
+
+	setAddrWindow(x, y, TFTWIDTH - 1, TFTHEIGHT - 1);
+	writeRegister16inline(ILI9341_MEMORYWRITE, color); //do this manually if function won't work
+	nrf_gpio_pin_write(LCD_CS, 1);
+}
+
+/**@brief Set the rotation of the screen by changing
+   how the hardware writes/reads its buffer.
+ */
+void ILI9341_setRotation(uint8_t dir) {
+	nrf_gpio_pin_write(LCD_CS, 0);
+	uint8_t val;
+	
+	switch(dir) {
+		case 1: //90 degree rotation
+			val = ILI9341_MADCTL_MX | ILI9341_MADCTL_MY | ILI9341_MADCTL_MV | ILI9341_MADCTL_BGR;
+			break;
+		case 2: //180 degree rotation
+			val = ILI9341_MADCTL_MX | ILI9341_MADCTL_BGR;
+			break;
+		case 3: //270 degree rotation
+			val = ILI9341_MADCTL_MV | ILI9341_MADCTL_BGR;
+			break;
+		default: //0 degree rotation
+			val = ILI9341_MADCTL_MY | ILI9341_MADCTL_BGR;
+	}
+	writeRegister8inline(ILI9341_MADCTL, val);
+	setAddrWindow(0, 0, TFTWIDTH - 1, TFTHEIGHT - 1);
+	
+	nrf_gpio_pin_write(LCD_CS, 1);
 }
