@@ -91,16 +91,17 @@ int main(void)
 	gpio_init();
 	lcd_reset();
 	lcd_init();
+	Adafruit_GFX_init(TFTWIDTH, TFTHEIGHT, ILI9341_drawPixel);
 
     // Start execution.
     NRF_LOG_INFO("LCD Test started.");
+	
+	Adafruit_GFX_fillCircle(100, 100, 50, 0x07FF);
 
     // Enter main loop.
     for (;;)
     {
-		nrf_delay_ms(500);
-        uint16_t identifier = getId();
-		NRF_LOG_INFO("LCD driver chip: %x", identifier);
+		__WFE();
     }
 }
 

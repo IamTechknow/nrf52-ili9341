@@ -53,28 +53,30 @@ void writeRegister8inline(uint8_t addr, uint8_t data) {
 	write8(data);
 }
 
-/**@brief Write command (padded with zeros) to the 8-bit data bus, and a 16-bit argument
+/**@brief Write command (padded with zeros) to the 8-bit data bus, and a 16-bit argument.
+   The 8 MSB are written first.
  */
 void writeRegister16inline(uint8_t addr, uint16_t data) {
 	nrf_gpio_pin_write(LCD_CD, 0);
-	write8(0);
 	write8(addr);
 	nrf_gpio_pin_write(LCD_CD, 1);
 	write8(data >> 8);
 	write8(data);
 }
 
+/**@brief Write a 32-bit value, starting from the MSBs and going down to the LSB.
+   Delays are needed to prevent random behaviour, such as random pixels being drawn.
+ */
 void writeRegister32(uint8_t addr, uint32_t data) {
 	nrf_gpio_pin_write(LCD_CD, 0);
 	write8(addr);
 	nrf_gpio_pin_write(LCD_CD, 1);
-	nrf_delay_us(10);
 	write8(data >> 24);
-	nrf_delay_us(10);
+	nrf_delay_us(1);
 	write8(data >> 16);
-	nrf_delay_us(10);
+	nrf_delay_us(1);
 	write8(data >> 8);
-	nrf_delay_us(10);
+	nrf_delay_us(1);
 	write8(data);
 }
 
@@ -128,16 +130,13 @@ uint32_t readReg(uint8_t addr) {
 */
 void setAddrWindow(uint16_t x1, uint16_t y1, uint16_t x2, uint16_t y2) {
 	uint32_t t;
-	nrf_gpio_pin_write(LCD_CS, 0);
 
 	t = x1 << 16;
     t |= x2;
-    writeRegister32(ILI9341_COLADDRSET, t);
+    writeRegister32(ILI9341_COLADDRSET, t); //write SC[15:0] then EC[15:0]
     t = y1 << 16;
     t |= y2;
-    writeRegister32(ILI9341_PAGEADDRSET, t);
-
-	nrf_gpio_pin_write(LCD_CS, 1);
+    writeRegister32(ILI9341_PAGEADDRSET, t); //write SP[15:0] then EP[15:0]
 }
 
 void lcd_reset(void) {
