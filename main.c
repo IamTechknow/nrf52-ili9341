@@ -82,11 +82,35 @@ static void log_init(void)
     NRF_LOG_DEFAULT_BACKENDS_INIT();
 }
 
+void testTriangles() {
+	int cx = (TFTWIDTH >> 1) - 1, cy = (TFTHEIGHT >> 1) - 1;
+	int n = cx <= cy ? cx : cy;
+	
+	Adafruit_GFX_fillScreen(0);
+	for(int i = 0; i < n; i += 5) 
+		Adafruit_GFX_drawTriangle(cx, cy - i, cx - i, cy + i, cx + i, cy + i, 0x0FFF);
+}
+
+void testFilledRects(uint16_t color1, uint16_t color2) {
+	int cx = (TFTWIDTH >> 1) - 1, cy = (TFTHEIGHT >> 1) - 1;
+	int n = cx <= cy ? cx : cy;
+	
+	Adafruit_GFX_fillScreen(0);
+	for(int i = n; i > 0; i -= 6) {
+		uint8_t j = i >> 1;
+		Adafruit_GFX_drawRect(cx - j, cy - j, i, i, color2);
+		Adafruit_GFX_fillRect(cx - j, cy - j, i, i, color1);
+	}
+}
+
 void testText() {
 	char* hello = "Hello World!";
 	char* num = "1234.56";
 	char* hex = "DEADBEEF";
+	char* groop = "Groop";
 
+	Adafruit_GFX_fillScreen(0);
+	
 	//Print hello world with white color, black background, default size
 	for(int i = 0; i < 13; i++)
 		Adafruit_GFX_drawChar(i * 6, 0, *(hello+i), 0xFFFF, 0x0000, 1);
@@ -96,6 +120,9 @@ void testText() {
 
 	for(int i = 0; i < 10; i++)
 		Adafruit_GFX_drawChar(i * 18, 27, *(hex+i), 0xF800, 0x0000, 3);
+	
+	for(int i = 0; i < 5; i++)
+		Adafruit_GFX_drawChar(i * 30, 63, *(groop+i), 0x07E0, 0x0000, 5);
 }
 
 /**@brief Function for application main entry.
@@ -112,7 +139,10 @@ int main(void)
     // Start execution.
     NRF_LOG_INFO("LCD Test started.");
 	NRF_LOG_INFO("LCD ID: %x", getId());
+	testTriangles();
+	testFilledRects(0xFFE0, 0xF81F);
 	testText();
+	
 	
     // Enter main loop.
     for (;;)
