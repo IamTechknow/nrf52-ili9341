@@ -62,6 +62,8 @@ uint32_t readReg(uint8_t addr);
 
 void setAddrWindow(uint16_t x1, uint16_t y1, uint16_t x2, uint16_t y2);
 
+void flood(uint16_t color, uint32_t len);
+
 //API functions
 void lcd_reset(void);
 
@@ -74,5 +76,7 @@ void gpio_init(void);
 void ILI9341_drawPixel(int16_t x, int16_t y, uint16_t color);
 
 void ILI9341_setRotation(uint8_t dir);
+
+void ILI9341_fillScreen(uint16_t color);
 
 #endif

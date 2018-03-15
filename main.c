@@ -86,7 +86,7 @@ void testTriangles() {
 	int cx = (TFTWIDTH >> 1) - 1, cy = (TFTHEIGHT >> 1) - 1;
 	int n = cx <= cy ? cx : cy;
 	
-	Adafruit_GFX_fillScreen(0);
+	ILI9341_fillScreen(0);
 	for(int i = 0; i < n; i += 5) 
 		Adafruit_GFX_drawTriangle(cx, cy - i, cx - i, cy + i, cx + i, cy + i, 0x0FFF);
 }
@@ -95,7 +95,7 @@ void testFilledRects(uint16_t color1, uint16_t color2) {
 	int cx = (TFTWIDTH >> 1) - 1, cy = (TFTHEIGHT >> 1) - 1;
 	int n = cx <= cy ? cx : cy;
 	
-	Adafruit_GFX_fillScreen(0);
+	ILI9341_fillScreen(0);
 	for(int i = n; i > 0; i -= 6) {
 		uint8_t j = i >> 1;
 		Adafruit_GFX_drawRect(cx - j, cy - j, i, i, color2);
@@ -109,7 +109,7 @@ void testText() {
 	char* hex = "DEADBEEF";
 	char* groop = "Groop";
 
-	Adafruit_GFX_fillScreen(0);
+	ILI9341_fillScreen(0);
 	
 	//Print hello world with white color, black background, default size
 	for(int i = 0; i < 13; i++)

@@ -132,6 +132,48 @@ void setAddrWindow(uint16_t x1, uint16_t y1, uint16_t x2, uint16_t y2) {
     writeRegister32(ILI9341_PAGEADDRSET, t); //write SP[15:0] then EP[15:0]
 }
 
+/**@brief Write color data sequentially, instead of one at time.
+   This allows faster filling than when done normally with Adafruit_GFX.
+*/
+void flood(uint16_t color, uint32_t len) {
+	uint8_t msb = color >> 8, lsb = color;
+
+	//Set the command
+	nrf_gpio_pin_write(LCD_CD, 0);
+	write8(ILI9341_MEMORYWRITE);
+
+	//Now write the data
+	nrf_gpio_pin_write(LCD_CD, 1);
+	write8(msb);
+	write8(lsb);
+	len--;
+
+	uint16_t blocks = len >> 6; //64 pixels / block
+	//Are MSB and LSB same? Then toggle write strobe to save time!
+	if(msb == lsb) {
+		while(blocks--)
+			for(uint8_t i = 0; i < 16; i++) { //4 pixels per pass
+				wr_strobe(); wr_strobe(); wr_strobe(); wr_strobe();
+				wr_strobe(); wr_strobe(); wr_strobe(); wr_strobe();
+			}
+
+		//Fill remaining
+		for(uint8_t i = (uint8_t) len & 63; i--;) {
+			wr_strobe(); wr_strobe();
+		}
+	} else {
+		while(blocks--) 
+			for(uint8_t i = 0; i < 16; i++) {
+				write8(msb); write8(lsb); write8(msb); write8(lsb);
+				write8(msb); write8(lsb); write8(msb); write8(lsb);
+			}
+
+		for(uint8_t i = (uint8_t) len & 63; i--;) {
+			write8(msb); write8(lsb);
+		}
+	}
+}
+
 void lcd_reset(void) {
 	for(int i = 1; i < 5; i++)
 		nrf_gpio_pin_write(gpio_out[i], 1);
@@ -235,6 +277,18 @@ void ILI9341_setRotation(uint8_t dir) {
 	}
 	writeRegister8inline(ILI9341_MADCTL, val);
 	setAddrWindow(0, 0, TFTWIDTH - 1, TFTHEIGHT - 1);
+	
+	nrf_gpio_pin_write(LCD_CS, 1);
+}
+
+/**@brief Fill the screen from the top left with the specified color.
+   This is a special case of the flood function.
+ */
+void ILI9341_fillScreen(uint16_t color) {
+	nrf_gpio_pin_write(LCD_CS, 0);
+	
+	setAddrWindow(0, 0, TFTWIDTH - 1, TFTHEIGHT - 1);
+	flood(color, TFTWIDTH * TFTHEIGHT);
 	
 	nrf_gpio_pin_write(LCD_CS, 1);
 }
