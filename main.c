@@ -51,6 +51,7 @@
 #include "nrf_log_default_backends.h"
 
 #include "ILI9341.h"
+#include "Adafruit_GFX.h"
 
 #define DEAD_BEEF                       0xDEADBEEF                              /**< Value used as error code on stack dump, can be used to identify stack location on stack unwind. */
 
