@@ -126,11 +126,9 @@ uint32_t readReg(uint8_t addr) {
 void setAddrWindow(uint16_t x1, uint16_t y1, uint16_t x2, uint16_t y2) {
 	uint32_t t;
 
-	t = x1 << 16;
-    t |= x2;
+	t = x1 << 16 | x2;
     writeRegister32(ILI9341_COLADDRSET, t); //write SC[15:0] then EC[15:0]
-    t = y1 << 16;
-    t |= y2;
+    t = y1 << 16 | y2;
     writeRegister32(ILI9341_PAGEADDRSET, t); //write SP[15:0] then EP[15:0]
 }
 

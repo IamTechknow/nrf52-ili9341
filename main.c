@@ -81,7 +81,23 @@ static void log_init(void)
 
     NRF_LOG_DEFAULT_BACKENDS_INIT();
 }
-	
+
+void testText() {
+	char* hello = "Hello World!";
+	char* num = "1234.56";
+	char* hex = "DEADBEEF";
+
+	//Print hello world with white color, black background, default size
+	for(int i = 0; i < 13; i++)
+		Adafruit_GFX_drawChar(i * 6, 0, *(hello+i), 0xFFFF, 0x0000, 1);
+
+	for(int i = 0; i < 7; i++)
+		Adafruit_GFX_drawChar(i * 12, 9, *(num+i), 0xFFE0, 0x0000, 2);
+
+	for(int i = 0; i < 10; i++)
+		Adafruit_GFX_drawChar(i * 18, 27, *(hex+i), 0xF800, 0x0000, 3);
+}
+
 /**@brief Function for application main entry.
  */
 int main(void)
@@ -95,9 +111,9 @@ int main(void)
 
     // Start execution.
     NRF_LOG_INFO("LCD Test started.");
+	NRF_LOG_INFO("LCD ID: %x", getId());
+	testText();
 	
-	Adafruit_GFX_fillCircle(100, 100, 50, 0x07FF);
-
     // Enter main loop.
     for (;;)
     {
