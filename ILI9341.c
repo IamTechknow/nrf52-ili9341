@@ -5,22 +5,17 @@
 
 //Global variables
 uint8_t gpio_out[5] = {LCD_RESET, LCD_CS, LCD_CD, LCD_WR, LCD_RD};
-uint8_t gpio_data[8] = {LCD_D0, LCD_D1, LCD_D2, LCD_D3, LCD_D4, LCD_D5, LCD_D6, LCD_D7};
 
 /**@brief Set the pin direction for the data pins as inputs for a read operation.
  */
 void setReadDirInline(void) {
-	for(uint8_t i = 0; i < 8; i++) {
-		nrf_gpio_pin_dir_set(gpio_data[i], NRF_GPIO_PIN_DIR_INPUT);
-		nrf_gpio_cfg_input(gpio_data[i], NRF_GPIO_PIN_PULLUP);
-	}
+	nrf_gpio_range_cfg_input(ARDUINO_2_PIN, ARDUINO_9_PIN, NRF_GPIO_PIN_PULLUP);
 }
 
-/**@brief Set the pin direction for the data pins as outputs for a read operation.
+/**@brief Set the pin direction for the data pins as outputs for a write operation.
  */
 void setWriteDirInline(void) {
-	for(uint8_t i = 0; i < 8; i++) 
-		nrf_gpio_pin_dir_set(gpio_data[i], NRF_GPIO_PIN_DIR_OUTPUT);
+	nrf_gpio_range_cfg_output(ARDUINO_2_PIN, ARDUINO_9_PIN);
 }
 
 /**@brief Data write strobe, ~2 instructions and always inline. See page 31 in spec
@@ -33,14 +28,14 @@ void wr_strobe() {
 /**@brief Write command to the 8-bit data bus. TODO: This should be done as a bit mask instead.
  */
 void write8(uint8_t data) {
-	nrf_gpio_pin_write(LCD_D0, data & 0x01);
-	nrf_gpio_pin_write(LCD_D1, (data & 0x02) >> 1);
-	nrf_gpio_pin_write(LCD_D2, (data & 0x04) >> 2);
-	nrf_gpio_pin_write(LCD_D3, (data & 0x08) >> 3);
-	nrf_gpio_pin_write(LCD_D4, (data & 0x10) >> 4);
-	nrf_gpio_pin_write(LCD_D5, (data & 0x20) >> 5);
-	nrf_gpio_pin_write(LCD_D6, (data & 0x40) >> 6);
-	nrf_gpio_pin_write(LCD_D7, (data & 0x80) >> 7);
+	nrf_gpio_pin_write(LCD_D0, data & 1);
+	nrf_gpio_pin_write(LCD_D1, (data >> 1) & 1);
+	nrf_gpio_pin_write(LCD_D2, (data >> 2) & 1);
+	nrf_gpio_pin_write(LCD_D3, (data >> 3) & 1);
+	nrf_gpio_pin_write(LCD_D4, (data >> 4) & 1);
+	nrf_gpio_pin_write(LCD_D5, (data >> 5) & 1);
+	nrf_gpio_pin_write(LCD_D6, (data >> 6) & 1);
+	nrf_gpio_pin_write(LCD_D7, (data >> 7) & 1);
 	wr_strobe();
 }
 
@@ -188,7 +183,7 @@ void lcd_init(void) {
 	nrf_gpio_pin_write(LCD_CS, 1);
 }
 
-/**@brief Function for initializing the GPIO pins as inputs and outputs
+/**@brief Init GPIO pins as inputs and outputs
  */
 void gpio_init(void) {
 	//The control signals are active low so set them to high.
@@ -216,7 +211,7 @@ void ILI9341_drawPixel(int16_t x, int16_t y, uint16_t color) {
 	nrf_gpio_pin_write(LCD_CS, 0);
 
 	setAddrWindow(x, y, TFTWIDTH - 1, TFTHEIGHT - 1);
-	writeRegister16inline(ILI9341_MEMORYWRITE, color); //do this manually if function won't work
+	writeRegister16inline(ILI9341_MEMORYWRITE, color);
 	nrf_gpio_pin_write(LCD_CS, 1);
 }
 
