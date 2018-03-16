@@ -93,13 +93,13 @@ void testTriangles() {
 
 void testFilledRects(uint16_t color1, uint16_t color2) {
 	int cx = (TFTWIDTH >> 1) - 1, cy = (TFTHEIGHT >> 1) - 1;
-	int n = cx <= cy ? cx : cy;
+	int n = TFTWIDTH <= TFTHEIGHT ? TFTWIDTH : TFTHEIGHT;
 	
 	ILI9341_fillScreen(0);
 	for(int i = n; i > 0; i -= 6) {
 		uint8_t j = i >> 1;
-		Adafruit_GFX_drawRect(cx - j, cy - j, i, i, color2);
 		Adafruit_GFX_fillRect(cx - j, cy - j, i, i, color1);
+		Adafruit_GFX_drawRect(cx - j, cy - j, i, i, color2);
 	}
 }
 

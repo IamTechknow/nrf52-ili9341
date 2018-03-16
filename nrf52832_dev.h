@@ -30,4 +30,10 @@ the nRF52832 and nRF52840 development kits.
 #define LCD_D6 ARDUINO_6_PIN
 #define LCD_D7 ARDUINO_7_PIN
 
+//Touchscreen pins, which correspond to some of the screen pins
+#define X_PLUS ARDUINO_9_PIN
+#define X_MINUS ARDUINO_A3_PIN
+#define Y_PLUS ARDUINO_A2_PIN
+#define Y_MINUS ARDUINO_8_PIN
+
 #endif
