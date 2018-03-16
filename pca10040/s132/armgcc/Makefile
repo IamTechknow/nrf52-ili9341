@@ -37,6 +37,7 @@ SRC_FILES += \
   $(PROJ_DIR)/ILI9341.c \
   $(PROJ_DIR)/Adafruit_GFX.c \
   $(PROJ_DIR)/glcdfont.c \
+  $(PROJ_DIR)/TouchScreen.c \
   $(SDK_ROOT)/external/segger_rtt/SEGGER_RTT_Syscalls_GCC.c \
   $(SDK_ROOT)/external/segger_rtt/SEGGER_RTT.c \
   $(SDK_ROOT)/external/segger_rtt/SEGGER_RTT_printf.c \
