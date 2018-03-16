@@ -104,25 +104,52 @@ void testFilledRects(uint16_t color1, uint16_t color2) {
 }
 
 void testText() {
-	char* hello = "Hello World!";
-	char* num = "1234.56";
-	char* hex = "DEADBEEF";
-	char* groop = "Groop";
+	char *hello = "Hello World!", *num = "1234.56", *hex = "DEADBEEF", *groop = "Groop";
+	const char *txt[8] = {"I implore thee,", "my foonting turlingdromes.", "And hooptiously drangle me",
+	"with crinkly bindlewurdles,", "Or I will rend thee", "in the gobberwarts",
+	"with my blurglecruncheon,", "see if I don't!"};
 
 	ILI9341_fillScreen(0);
+	Adafruit_GFX_setCursor(0, 0);
 	
 	//Print hello world with white color, black background, default size
+	Adafruit_GFX_setTextColor(0xFFFF, 0x0000);
+	Adafruit_GFX_setTextSize(1);
 	for(int i = 0; i < 13; i++)
-		Adafruit_GFX_drawChar(i * 6, 0, *(hello+i), 0xFFFF, 0x0000, 1);
+		Adafruit_GFX_write(*(hello+i));
+	Adafruit_GFX_write('\n');
 
+	Adafruit_GFX_setTextColor(0xFFE0, 0x0000);
+	Adafruit_GFX_setTextSize(2);
 	for(int i = 0; i < 7; i++)
-		Adafruit_GFX_drawChar(i * 12, 9, *(num+i), 0xFFE0, 0x0000, 2);
+		Adafruit_GFX_write(*(num+i));
+	Adafruit_GFX_write('\n');
 
+	Adafruit_GFX_setTextColor(0xF800, 0x0000);
+	Adafruit_GFX_setTextSize(3);
 	for(int i = 0; i < 10; i++)
-		Adafruit_GFX_drawChar(i * 18, 27, *(hex+i), 0xF800, 0x0000, 3);
+		Adafruit_GFX_write(*(hex+i));
+	Adafruit_GFX_write('\n');
+	Adafruit_GFX_write('\n');
 	
+	Adafruit_GFX_setTextColor(0x07E0, 0x0000);
+	Adafruit_GFX_setTextSize(5);
 	for(int i = 0; i < 5; i++)
-		Adafruit_GFX_drawChar(i * 30, 63, *(groop+i), 0x07E0, 0x0000, 5);
+		Adafruit_GFX_write(*(groop+i));
+	Adafruit_GFX_write('\n');
+	
+	Adafruit_GFX_setTextSize(2);
+	for(int i = 0; i < 15; i++)
+		Adafruit_GFX_write(*(txt[0]+i));
+	Adafruit_GFX_write('\n');
+	
+	Adafruit_GFX_setTextSize(1);
+	for(int i = 1; i < 8; i++) {
+		int len = strlen(txt[i]);
+		for(int j = 0; j < len; j++)
+			Adafruit_GFX_write(*(txt[i]+j));
+		Adafruit_GFX_write('\n');
+	}
 }
 
 /**@brief Function for application main entry.
