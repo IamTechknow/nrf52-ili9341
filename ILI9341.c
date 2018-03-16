@@ -208,7 +208,7 @@ void lcd_init(void) {
 	writeRegister8inline(ILI9341_POWERCONTROL2, 0x10);
 	writeRegister16inline(ILI9341_VCOMCONTROL1, 0x2B2B);
 	writeRegister8inline(ILI9341_VCOMCONTROL1, 0xC0);
-	writeRegister8inline(ILI9341_MEMCONTROL, ILI9341_MADCTL_MY | ILI9341_MADCTL_BGR);
+	writeRegister8inline(ILI9341_MADCTL, ILI9341_MADCTL_MY | ILI9341_MADCTL_BGR);
 	writeRegister8inline(ILI9341_PIXELFORMAT, 0x55);
 	writeRegister16inline(ILI9341_FRAMECONTROL, 0x001B);
 
@@ -272,7 +272,7 @@ void ILI9341_setRotation(uint8_t dir) {
 		case 3: //270 degree rotation
 			val = ILI9341_MADCTL_MV | ILI9341_MADCTL_BGR;
 			break;
-		default: //0 degree rotation
+		default: //0 degree rotation, 240x320
 			val = ILI9341_MADCTL_MY | ILI9341_MADCTL_BGR;
 	}
 	writeRegister8inline(ILI9341_MADCTL, val);

@@ -168,13 +168,16 @@ int main(void)
 	NRF_LOG_INFO("LCD ID: %x", getId());
 	testTriangles();
 	testFilledRects(0xFFE0, 0xF81F);
-	testText();
 	
+	uint8_t i = 0;
 	
     // Enter main loop.
     for (;;)
     {
-		__WFE();
+		Adafruit_GFX_setRotation(i % 4);
+		ILI9341_setRotation(i++ % 4);
+		testText();
+		nrf_delay_ms(2000);
     }
 }
 
