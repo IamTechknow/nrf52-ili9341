@@ -52,6 +52,7 @@
 
 #include "ILI9341.h"
 #include "Adafruit_GFX.h"
+#include "TouchScreen.h"
 
 #define DEAD_BEEF                       0xDEADBEEF                              /**< Value used as error code on stack dump, can be used to identify stack location on stack unwind. */
 
@@ -162,22 +163,28 @@ int main(void)
 	lcd_reset();
 	lcd_init();
 	Adafruit_GFX_init(TFTWIDTH, TFTHEIGHT, ILI9341_drawPixel);
+	saadc_init();
 
     // Start execution.
     NRF_LOG_INFO("LCD Test started.");
 	NRF_LOG_INFO("LCD ID: %x", getId());
-	testTriangles();
-	testFilledRects(0xFFE0, 0xF81F);
+	//testTriangles();
+	//testFilledRects(0xFFE0, 0xF81F);
 	
 	uint8_t i = 0;
 	
     // Enter main loop.
     for (;;)
     {
-		Adafruit_GFX_setRotation(i % 4);
-		ILI9341_setRotation(i++ % 4);
-		testText();
-		nrf_delay_ms(2000);
+		//Adafruit_GFX_setRotation(i % 4);
+		//ILI9341_setRotation(i++ % 4);
+		//testText();
+		//nrf_delay_ms(2000);
+
+		int16_t x = readTouchX(), y = readTouchY(), z = pressure();
+		if(z > MIN_THRESHOLD && x >= 0 && y >= 0)
+			NRF_LOG_INFO("X: %d, Y: %d, Pressure = %d", x, y, z);
+		nrf_delay_ms(100);
     }
 }
 

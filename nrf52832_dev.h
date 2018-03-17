@@ -10,6 +10,7 @@ the nRF52832 and nRF52840 development kits.
 
 #include "boards.h" //contains pin declarations
 #include "nrf_gpio.h"
+#include "nrf_saadc.h"
 
 //Pin declarations. Only 8 data pins are exposed, so the Interface Mode pins should already
 //be set to the 80-system 8-bit interface (mode 3)
