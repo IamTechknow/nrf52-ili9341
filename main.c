@@ -56,6 +56,18 @@
 
 #define DEAD_BEEF                       0xDEADBEEF                              /**< Value used as error code on stack dump, can be used to identify stack location on stack unwind. */
 
+#define GRAPHICS_TEST
+
+// Assign human-readable names to some common 16-bit color values:
+#define	BLACK   0
+#define	BLUE    0x001F
+#define	RED     0xF800
+#define	GREEN   0x07E0
+#define CYAN    0x07FF
+#define MAGENTA 0xF81F
+#define YELLOW  0xFFE0
+#define WHITE 0xFFFF
+
 /**@brief Callback function for asserts in the SoftDevice.
  *
  * @details This function will be called in case of an assert in the SoftDevice.
@@ -83,24 +95,147 @@ static void log_init(void)
     NRF_LOG_DEFAULT_BACKENDS_INIT();
 }
 
-void testTriangles() {
-	int cx = (TFTWIDTH >> 1) - 1, cy = (TFTHEIGHT >> 1) - 1;
-	int n = cx <= cy ? cx : cy;
+#ifdef GRAPHICS_TEST
+void testFillScreen() {
+	ILI9341_fillScreen(BLACK);
+	ILI9341_fillScreen(RED);
+	ILI9341_fillScreen(GREEN);
+	ILI9341_fillScreen(BLUE);
+	ILI9341_fillScreen(BLACK);
+}
+
+void testLines(uint16_t color) {
+	uint16_t x1, y1, x2, y2, w = TFTWIDTH, h = TFTHEIGHT;
+
+	ILI9341_fillScreen(BLACK);
+	x1 = y1 = 0;
+	y2 = h - 1;
+
+	for(x2 = 0; x2 < w; x2 += 6) 
+		Adafruit_GFX_drawLine(x1, y1, x2, y2, color);
+	x2 = w - 1;
+	for(y2 = 0; y2 < h; y2 += 6) 
+		Adafruit_GFX_drawLine(x1, y1, x2, y2, color);
+
+	ILI9341_fillScreen(BLACK);
+	x1 = w - 1;
+	y1 = 0;
+	y2 = h - 1;
+	for(x2 = 0; x2 < w; x2 += 6) 
+		Adafruit_GFX_drawLine(x1, y1, x2, y2, color);
+	x2 = 0;
+	for(y2 = 0; y2 < h; y2 += 6) 
+		Adafruit_GFX_drawLine(x1, y1, x2, y2, color);
+
+	ILI9341_fillScreen(BLACK);
+	x1 = y2 = 0;
+	y1 = h - 1;
+	for(x2 = 0; x2 < w; x2 += 6) 
+		Adafruit_GFX_drawLine(x1, y1, x2, y2, color);
+	x2 = w - 1;
+	for(y2 = 0; y2 < h; y2 += 6) 
+		Adafruit_GFX_drawLine(x1, y1, x2, y2, color);
+
+	ILI9341_fillScreen(BLACK);
+	x1 = w - 1;
+	y1 = h - 1;
+	y2 = 0;
+	for(x2 = 0; x2 < w; x2 += 6) 
+		Adafruit_GFX_drawLine(x1, y1, x2, y2, color);
 	
-	ILI9341_fillScreen(0);
-	for(int i = 0; i < n; i += 5) 
-		Adafruit_GFX_drawTriangle(cx, cy - i, cx - i, cy + i, cx + i, cy + i, 0x0FFF);
+	for(x2 = 0; y2 < h; y2 += 6) 
+		Adafruit_GFX_drawLine(x1, y1, x2, y2, color);
+}
+
+void testFastLines(uint16_t color1, uint16_t color2) {
+	uint16_t w = TFTWIDTH, h = TFTHEIGHT;
+	ILI9341_fillScreen(BLACK);
+	
+	for(uint16_t y = 0; y < h; y += 5) 
+		Adafruit_GFX_drawFastHLine(0, y, w, color1);
+	for(uint16_t x = 0; x < w; x += 5) 
+		Adafruit_GFX_drawFastVLine(x, 0, h, color2);
+}
+
+void testRects(uint16_t color) {
+	uint16_t cx = (TFTWIDTH >> 1) - 1, cy = (TFTHEIGHT >> 1) - 1;
+	uint16_t n = TFTWIDTH <= TFTHEIGHT ? TFTWIDTH : TFTHEIGHT;
+
+	for(uint16_t i = 2; i < n; i += 6) {
+		uint8_t j = i >> 1;
+		Adafruit_GFX_drawRect(cx - j, cy - j, i, i, color);
+	}
 }
 
 void testFilledRects(uint16_t color1, uint16_t color2) {
-	int cx = (TFTWIDTH >> 1) - 1, cy = (TFTHEIGHT >> 1) - 1;
-	int n = TFTWIDTH <= TFTHEIGHT ? TFTWIDTH : TFTHEIGHT;
-	
-	ILI9341_fillScreen(0);
+	uint16_t cx = (TFTWIDTH >> 1) - 1, cy = (TFTHEIGHT >> 1) - 1;
+	uint16_t n = TFTWIDTH <= TFTHEIGHT ? TFTWIDTH : TFTHEIGHT;
+
+	ILI9341_fillScreen(BLACK);
 	for(int i = n; i > 0; i -= 6) {
 		uint8_t j = i >> 1;
 		Adafruit_GFX_fillRect(cx - j, cy - j, i, i, color1);
 		Adafruit_GFX_drawRect(cx - j, cy - j, i, i, color2);
+	}
+}
+
+void testFilledCircles(uint8_t radius, uint16_t color) {
+	int x, y, w = TFTWIDTH, h = TFTHEIGHT, r2 = radius << 1;
+	ILI9341_fillScreen(BLACK);
+
+	for(x = radius; x < w; x += r2) 
+		for(y = radius; y < h; y += r2) 
+			Adafruit_GFX_fillCircle(x, y, radius, color);
+}
+
+void testCircles(uint8_t radius, uint16_t color) {
+	int x, y, w = TFTWIDTH + radius , h = TFTHEIGHT + radius , r2 = radius << 1;
+
+	for(x = 0; x < w; x += r2) 
+		for(y = 0; y < h; y += r2) 
+			Adafruit_GFX_drawCircle(x, y, radius, color);
+}
+
+void testTriangles() {
+	int cx = (TFTWIDTH >> 1) - 1, cy = (TFTHEIGHT >> 1) - 1;
+	int n = cx <= cy ? cx : cy;
+	ILI9341_fillScreen(BLACK);
+
+	for(int i = 0; i < n; i += 5) 
+		Adafruit_GFX_drawTriangle(cx, cy - i, cx - i, cy + i, cx + i, cy + i, 0x0FFF);
+}
+
+void testFilledTriangles() {
+	int cx = (TFTWIDTH >> 1) - 1, cy = (TFTHEIGHT >> 1) - 1;
+	ILI9341_fillScreen(BLACK);
+	int i = cx <= cy ? cx : cy;
+
+	for(; i > 10; i -= 5) {
+		Adafruit_GFX_fillTriangle(cx, cy - i, cx - i, cy + i, cx + i, cy + i, 0x0FFF);
+
+		Adafruit_GFX_fillTriangle(cx, cy - i, cx - i, cy + i, cx + i, cy + i, 0x0FFF);
+	}
+}
+
+void testRoundRects() {
+	int cx = (TFTWIDTH >> 1) - 1, cy = (TFTHEIGHT >> 1) - 1;
+	ILI9341_fillScreen(BLACK);
+	int w = TFTWIDTH <= TFTHEIGHT ? TFTWIDTH : TFTHEIGHT, i, i2;
+
+	for(i = 0; i < w; i += 6) {
+		i2 = i >> 1;
+		Adafruit_GFX_drawRoundRect(cx - i2, cy - i2, i, i, i >> 3, 0x0FFF);
+	}
+}
+
+void testFilledRoundRects() {
+	int cx = (TFTWIDTH >> 1) - 1, cy = (TFTHEIGHT >> 1) - 1, i, i2;
+	ILI9341_fillScreen(BLACK);
+	i = TFTWIDTH <= TFTHEIGHT ? TFTWIDTH : TFTHEIGHT;
+
+	for(; i > 20; i -= 6) {
+		i2 = i >> 1;
+		Adafruit_GFX_fillRoundRect(cx - i2, cy - i2, i, i, i >> 3, 0x0FFF);
 	}
 }
 
@@ -110,30 +245,30 @@ void testText() {
 	"with crinkly bindlewurdles,", "Or I will rend thee", "in the gobberwarts",
 	"with my blurglecruncheon,", "see if I don't!"};
 
-	ILI9341_fillScreen(0);
+	ILI9341_fillScreen(BLACK);
 	Adafruit_GFX_setCursor(0, 0);
 	
 	//Print hello world with white color, black background, default size
-	Adafruit_GFX_setTextColor(0xFFFF, 0x0000);
+	Adafruit_GFX_setTextColor(WHITE, BLACK);
 	Adafruit_GFX_setTextSize(1);
 	for(int i = 0; i < 13; i++)
 		Adafruit_GFX_write(*(hello+i));
 	Adafruit_GFX_write('\n');
 
-	Adafruit_GFX_setTextColor(0xFFE0, 0x0000);
+	Adafruit_GFX_setTextColor(YELLOW, BLACK);
 	Adafruit_GFX_setTextSize(2);
 	for(int i = 0; i < 7; i++)
 		Adafruit_GFX_write(*(num+i));
 	Adafruit_GFX_write('\n');
 
-	Adafruit_GFX_setTextColor(0xF800, 0x0000);
+	Adafruit_GFX_setTextColor(RED, BLACK);
 	Adafruit_GFX_setTextSize(3);
 	for(int i = 0; i < 10; i++)
 		Adafruit_GFX_write(*(hex+i));
 	Adafruit_GFX_write('\n');
 	Adafruit_GFX_write('\n');
 	
-	Adafruit_GFX_setTextColor(0x07E0, 0x0000);
+	Adafruit_GFX_setTextColor(GREEN, BLACK);
 	Adafruit_GFX_setTextSize(5);
 	for(int i = 0; i < 5; i++)
 		Adafruit_GFX_write(*(groop+i));
@@ -153,6 +288,26 @@ void testText() {
 	}
 }
 
+void rtc_init(void) {
+	// Start LFCLK (32kHz) crystal oscillator. If you don't have crystal on your board, choose RCOSC instead.
+	NRF_CLOCK->LFCLKSRC = CLOCK_LFCLKSRC_SRC_Xtal << CLOCK_LFCLKSRC_SRC_Pos;
+	NRF_CLOCK->TASKS_LFCLKSTART = 1;
+	while (NRF_CLOCK->EVENTS_LFCLKSTARTED == 0);
+	NRF_CLOCK->EVENTS_LFCLKSTARTED = 0;
+	
+	// 1kHz RTC frequency
+	NRF_RTC0->PRESCALER = 31;
+	
+	// Start RTC
+	NRF_RTC0->TASKS_START = 1;
+}
+
+void rtc_stop(void) {
+	NRF_RTC0->TASKS_STOP = 1;
+	NRF_CLOCK->TASKS_LFCLKSTOP = 1;
+}
+#endif
+
 /**@brief Function for application main entry.
  */
 int main(void)
@@ -163,28 +318,86 @@ int main(void)
 	lcd_reset();
 	lcd_init();
 	Adafruit_GFX_init(TFTWIDTH, TFTHEIGHT, ILI9341_drawPixel);
-	saadc_init();
 
     // Start execution.
     NRF_LOG_INFO("LCD Test started.");
 	NRF_LOG_INFO("LCD ID: %x", getId());
-	//testTriangles();
-	//testFilledRects(0xFFE0, 0xF81F);
+	
+#ifdef GRAPHICS_TEST
+	rtc_init();
+	NRF_LOG_INFO("Benchmark                Time (milliseconds)");
+	uint32_t time;
+	
+	//For each test, measure the time each test takes in milliseconds.
+	
+	time = NRF_RTC0->COUNTER;
+	testFillScreen();
+	NRF_LOG_INFO("Screen fill              %d", NRF_RTC0->COUNTER - time);
+	
+	time = NRF_RTC0->COUNTER;
+	testText();
+	NRF_LOG_INFO("Text                     %d", NRF_RTC0->COUNTER - time);
+	
+	time = NRF_RTC0->COUNTER;
+	testLines(CYAN);
+	NRF_LOG_INFO("Lines                    %d", NRF_RTC0->COUNTER - time);
+	
+	time = NRF_RTC0->COUNTER;
+	testFastLines(RED, BLUE);
+	NRF_LOG_INFO("Horiz/Vert Lines         %d", NRF_RTC0->COUNTER - time);
+	
+	time = NRF_RTC0->COUNTER;
+	testRects(GREEN);
+	NRF_LOG_INFO("Rectangles (outline)     %d", NRF_RTC0->COUNTER - time);
+	
+	time = NRF_RTC0->COUNTER;
+	testFilledRects(YELLOW, MAGENTA);
+	NRF_LOG_INFO("Rectangles (filled)      %d", NRF_RTC0->COUNTER - time);
+	
+	time = NRF_RTC0->COUNTER;
+	testFilledCircles(10, MAGENTA);
+	NRF_LOG_INFO("Circles (filled)         %d", NRF_RTC0->COUNTER - time);
+	
+	time = NRF_RTC0->COUNTER;
+	testCircles(10, WHITE);
+	NRF_LOG_INFO("Circles (outline)        %d", NRF_RTC0->COUNTER - time);
+	
+	time = NRF_RTC0->COUNTER;
+	testTriangles();
+	NRF_LOG_INFO("Triangles (outline)      %d", NRF_RTC0->COUNTER - time);
+	
+	time = NRF_RTC0->COUNTER;
+	testFilledTriangles();
+	NRF_LOG_INFO("Triangles (filled)       %d", NRF_RTC0->COUNTER - time);
+	
+	time = NRF_RTC0->COUNTER;
+	testRoundRects();
+	NRF_LOG_INFO("Rounded rects (outline)  %d", NRF_RTC0->COUNTER - time);
+	
+	time = NRF_RTC0->COUNTER;
+	testFilledRoundRects();
+	NRF_LOG_INFO("Rounded rects (filled)   %d", NRF_RTC0->COUNTER - time);
+	rtc_stop();
 	
 	uint8_t i = 0;
+#else
+	saadc_init();
+#endif
 	
     // Enter main loop.
     for (;;)
     {
-		//Adafruit_GFX_setRotation(i % 4);
-		//ILI9341_setRotation(i++ % 4);
-		//testText();
-		//nrf_delay_ms(2000);
-
+#ifdef GRAPHICS_TEST
+		Adafruit_GFX_setRotation(i % 4);
+		ILI9341_setRotation(i++ % 4);
+		testText();
+		nrf_delay_ms(2000);
+#else
 		int16_t x = readTouchX(), y = readTouchY(), z = pressure();
 		if(z > MIN_THRESHOLD && x >= 0 && y >= 0)
 			NRF_LOG_INFO("X: %d, Y: %d, Pressure = %d", x, y, z);
 		nrf_delay_ms(100);
+#endif
     }
 }
 
