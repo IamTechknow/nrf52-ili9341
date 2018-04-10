@@ -208,9 +208,9 @@ void testTriangles() {
 void testFilledTriangles() {
 	int cx = (TFTWIDTH >> 1) - 1, cy = (TFTHEIGHT >> 1) - 1;
 	ILI9341_fillScreen(BLACK);
-	int i = cx <= cy ? cx : cy;
+	int limit = cx <= cy ? cx : cy;
 
-	for(; i > 10; i -= 5) {
+	for(int i = 10; i < limit; i += 5) {
 		Adafruit_GFX_fillTriangle(cx, cy - i, cx - i, cy + i, cx + i, cy + i, 0x0FFF);
 
 		Adafruit_GFX_fillTriangle(cx, cy - i, cx - i, cy + i, cx + i, cy + i, 0x0FFF);
@@ -229,11 +229,11 @@ void testRoundRects() {
 }
 
 void testFilledRoundRects() {
-	int cx = (TFTWIDTH >> 1) - 1, cy = (TFTHEIGHT >> 1) - 1, i, i2;
+	int cx = (TFTWIDTH >> 1) - 1, cy = (TFTHEIGHT >> 1) - 1, i2;
 	ILI9341_fillScreen(BLACK);
-	i = TFTWIDTH <= TFTHEIGHT ? TFTWIDTH : TFTHEIGHT;
+	int limit = TFTWIDTH <= TFTHEIGHT ? TFTWIDTH : TFTHEIGHT;
 
-	for(; i > 20; i -= 6) {
+	for(int i = 20; i < limit; i += 6) {
 		i2 = i >> 1;
 		Adafruit_GFX_fillRoundRect(cx - i2, cy - i2, i, i, i >> 3, 0x0FFF);
 	}
